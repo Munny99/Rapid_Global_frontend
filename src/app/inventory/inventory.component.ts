@@ -1,11 +1,14 @@
-import { AfterViewInit, Component } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { PageHeaderService } from '../core/services/page-header/page-header.service';
+import { SideNavComponent } from './side-nav/side-nav.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-inventory',
   templateUrl: './inventory.component.html',
   styleUrls: ['./inventory.component.css']
 })
-export class InventoryComponent implements AfterViewInit {
+export class InventoryComponent implements AfterViewInit, OnInit {
 
   ngAfterViewInit() {
     // Example: add custom event handling if needed
@@ -16,5 +19,34 @@ export class InventoryComponent implements AfterViewInit {
         link.classList.add('active');
       });
     });
+  }
+
+  title: string = '';
+  searchPlaceholder: string = '';
+  showSearch: boolean = true;
+
+  constructor(
+    private pageHeaderService: PageHeaderService,
+    private router: Router
+  ) {}
+
+  @ViewChild('sideNav') sideNav!: SideNavComponent;
+
+  ngOnInit() {
+    this.pageHeaderService.title$.subscribe((t) => (this.title = t));
+    this.pageHeaderService.searchPlaceholder$.subscribe(
+      (p) => (this.searchPlaceholder = p)
+    );
+  }
+
+  toggleMenu() {
+    this.sideNav.toggleSidebar();
+  }
+
+  confirmLogout() {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+
+    this.router.navigate(['/login']);
   }
 }
